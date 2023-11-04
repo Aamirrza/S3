@@ -1,0 +1,306 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Web;
+using System.Web.UI;
+using System.Web.UI.WebControls;
+using System.Data;
+using System.Data.SqlClient;
+public partial class A3Q1_3 : System.Web.UI.Page
+{
+    SqlConnection cn = new SqlConnection("Data Source=.\\sqlexpress;Initial Catalog=studentmanag;User ID=sa;Password=sa123");
+    SqlCommand cmd;
+    string str;
+    SqlDataReader rd;
+    protected void Page_Load(object sender, EventArgs e)
+    {
+        if(!IsPostBack)
+        {
+            load_class();
+            load_course();
+            enroll();
+        }
+        load_grid();
+
+    }
+
+    protected void Button1_Click(object sender, EventArgs e)
+    {
+        cn = new SqlConnection("Data Source=.\\sqlexpress;Initial Catalog=studentmanag;User ID=sa;Password=sa123");
+        cmd = new SqlCommand();
+        cmd.Connection = cn;
+        cmd.CommandType = CommandType.Text;
+        //Response.Write(txtdob.Text);
+        str = "insert into student values("+txtrno.Text+",'"+txtname.Text+"',"+txtclassid.SelectedValue+","+txtcourseid.SelectedValue+",'"+txtemail.Text+"',"+txtmno.Text+",'"+txtdob.Text+"')";
+
+        cmd.CommandText = str;
+        try
+        {
+            cn.Open();
+            cmd.ExecuteNonQuery();
+
+        }
+        catch (Exception ex)
+        {
+            Response.Write(ex.Message);
+        }
+        finally
+        {
+            cn.Close();
+            cmd.Dispose();
+            cn.Dispose();
+
+
+        }
+        load_grid();
+        enroll();
+
+    }
+    protected void load_course()
+    {
+        cn = new SqlConnection("Data Source=.\\sqlexpress;Initial Catalog=studentmanag;User ID=sa;Password=sa123");
+        cmd = new SqlCommand();
+        cmd.Connection = cn;
+        str = "select * from  course";
+        try
+        {
+            cn.Open();
+            cmd.CommandText = str;
+            rd = cmd.ExecuteReader();
+
+            txtcourseid.DataSource = rd;
+            txtcourseid.DataValueField = "course_id";
+            txtcourseid.DataTextField = "course_name";
+            txtcourseid.DataBind();
+
+        }
+        catch (Exception ex)
+        {
+            Response.Write("<script>alert(" + ex.ToString() + ")</script>");
+        }
+        finally
+        {
+            cn.Close();
+            cmd.Dispose();
+            cn.Dispose();
+        }
+
+    }
+    protected void load_class()
+    {
+        cn = new SqlConnection("Data Source=.\\sqlexpress;Initial Catalog=studentmanag;User ID=sa;Password=sa123");
+        cmd = new SqlCommand();
+        cmd.Connection = cn;
+        str = "select Class_id,Class_name from  class";
+        try
+        {
+            cn.Open();
+            cmd.CommandText = str;
+            rd = cmd.ExecuteReader();
+            txtclassid.DataSource = rd;
+            txtclassid.DataValueField = "Class_id";
+            txtclassid.DataTextField = "Class_name";
+            txtclassid.DataBind();
+
+        }
+        catch (Exception ex)
+        {
+            Response.Write("<script>alert(" + ex.ToString() + ")</script>");
+        }
+        finally
+        {
+            cn.Close();
+            cmd.Dispose();
+            cn.Dispose();
+        }
+    }
+    protected void load_grid()
+    {
+        cn = new SqlConnection("Data Source=.\\sqlexpress;Initial Catalog=studentmanag;User ID=sa;Password=sa123");
+        cmd = new SqlCommand();
+        cmd.Connection = cn;
+        cmd.CommandType = CommandType.Text;
+        cmd = new SqlCommand();
+        cmd.Connection = cn;
+        str = "select * from  student";
+        try
+        {
+            cn.Open();
+            cmd.CommandText = str;
+            rd = cmd.ExecuteReader();
+            GridView1.DataSource = rd;
+            GridView1.DataBind();
+
+        }
+        catch (Exception ex)
+        {
+            Response.Write("<script>alert(" + ex.ToString() + ")</script>");
+        }
+        finally
+        {
+            cn.Close();
+            cmd.Dispose();
+            cn.Dispose();
+        }
+    }
+    public void enroll()
+    {
+        cn = new SqlConnection("Data Source=.\\sqlexpress;Initial Catalog=studentmanag;User ID=sa;Password=sa123");
+        cmd = new SqlCommand();
+        cmd.Connection = cn;
+        cmd.CommandType = CommandType.Text;
+        cmd = new SqlCommand();
+        cmd.Connection = cn;
+        str = "select enrollno from  student";
+        try
+        {
+            cn.Open();
+            cmd.CommandText = str;
+            rd = cmd.ExecuteReader();
+            txtenroll.DataSource = rd;
+            txtenroll.DataValueField = "enrollno";
+            txtenroll.DataBind();
+
+        }
+        catch (Exception ex)
+        {
+            Response.Write("<script>alert(" + ex.ToString() + ")</script>");
+        }
+        finally
+        {
+            cn.Close();
+            cmd.Dispose();
+            cn.Dispose();
+        }
+    }
+
+    protected void Button2_Click(object sender, EventArgs e)
+    {
+        cn = new SqlConnection("Data Source=.\\sqlexpress;Initial Catalog=studentmanag;User ID=sa;Password=sa123");
+        cmd = new SqlCommand();
+        cmd.Connection = cn;
+        cmd.CommandType = CommandType.Text;
+        //Response.Write(txtdob.Text);
+        str = "update student set rollno="+txtrno.Text+",name = '"+txtname.Text+"',class="+txtclassid.SelectedValue+",course="+txtcourseid.SelectedValue+",email='"+txtemail.Text+"',mobile="+txtmno.Text+",dob='"+txtdob.Text+ "' where enrollno =" + txtenroll.Text;
+
+        cmd.CommandText = str;
+        try
+        {
+            cn.Open();
+            cmd.ExecuteNonQuery();
+
+        }
+        catch (Exception ex)
+        {
+            Response.Write(ex.Message);
+        }
+        finally
+        {
+            cn.Close();
+            cmd.Dispose();
+            cn.Dispose();
+
+
+        }
+        load_grid();
+        enroll();
+    }
+
+    protected void Button6_Click(object sender, EventArgs e)
+    {
+        Response.Write("inmethod");
+        cn = new SqlConnection("Data Source=.\\sqlexpress;Initial Catalog=studentmanag;User ID=sa;Password=sa123");
+        cmd = new SqlCommand();
+        cmd.Connection = cn;
+        cmd.CommandType = CommandType.Text;
+        cmd = new SqlCommand();
+        cmd.Connection = cn;
+        str = "select * from  student where enrollno = "+txtenroll.Text;
+        
+            cn.Open();
+            cmd.CommandText = str;
+            rd = cmd.ExecuteReader();
+        while (rd.Read())
+        {
+            txtenroll.SelectedValue = rd[0].ToString();
+            txtrno.Text = rd[1].ToString();
+            txtname.Text = rd[2].ToString();
+            txtclassid.SelectedValue = rd[3].ToString();
+            txtcourseid.SelectedValue = rd[4].ToString();
+            txtemail.Text = rd[5].ToString();
+            txtmno.Text = rd[6].ToString();
+            txtdob.Text = rd[7].ToString();
+        }
+
+       
+            cn.Close();
+            cmd.Dispose();
+            cn.Dispose();
+        
+    }
+
+    protected void Button3_Click(object sender, EventArgs e)
+    {
+        cn = new SqlConnection("Data Source=.\\sqlexpress;Initial Catalog=studentmanag;User ID=sa;Password=sa123");
+        cmd = new SqlCommand();
+        cmd.Connection = cn;
+        cmd.CommandType = CommandType.Text;
+        cmd = new SqlCommand();
+        cmd.Connection = cn;
+        str = "delete from student where rollno = "+txtrno.Text+" AND course = "+txtcourseid.SelectedValue;
+
+        cn.Open();
+        cmd.CommandText = str;
+        cmd.ExecuteNonQuery();
+        cn.Close();
+        cmd.Dispose();
+        cn.Dispose();
+
+    }
+
+    protected void Button5_Click(object sender, EventArgs e)
+    {
+        cn = new SqlConnection("Data Source=.\\sqlexpress;Initial Catalog=studentmanag;User ID=sa;Password=sa123");
+        cmd = new SqlCommand();
+        cmd.Connection = cn;
+        cmd.CommandType = CommandType.Text;
+        cmd = new SqlCommand();
+        cmd.Connection = cn;
+        if (txtname.Text != "")
+        {
+            str = "select * from  student where name = '" + txtname.Text + "'";
+            cn.Open();
+            cmd.CommandText = str;
+            rd = cmd.ExecuteReader();
+            if (rd.FieldCount > 1)
+            {
+                Response.Write("please slect course with name");
+                str = "select * from  student where name = '" + txtname.Text + "' AND course = '" + txtcourseid.SelectedValue.ToString() + "'";
+                cn.Close();
+                cn.Open();
+                cmd.CommandText = str;
+                rd = cmd.ExecuteReader();
+            }
+            while (rd.Read())
+            {
+                txtenroll.SelectedValue = rd[0].ToString();
+                txtrno.Text = rd[1].ToString();
+                txtname.Text = rd[2].ToString();
+                txtclassid.SelectedValue = rd[3].ToString();
+                txtcourseid.SelectedValue = rd[4].ToString();
+                txtemail.Text = rd[5].ToString();
+                txtmno.Text = rd[6].ToString();
+
+
+            }
+
+        }
+        
+          
+
+        cn.Close();
+        cmd.Dispose();
+        cn.Dispose();
+    
+    }
+}

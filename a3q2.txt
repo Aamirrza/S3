@@ -1,0 +1,173 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Web;
+using System.Web.UI;
+using System.Web.UI.WebControls;
+using System.Data;
+using System.Data.SqlClient;
+public partial class A3Q4 : System.Web.UI.Page
+{
+    SqlDataAdapter da;
+    DataSet ds;
+    string str;
+    SqlCommandBuilder cb;
+    protected void Page_Load(object sender, EventArgs e)
+    {
+        if (!IsPostBack)
+        {
+            loaddept();
+            loaddesg();
+            loadeno();
+        }
+        loaddata();
+    }
+
+    protected void Button1_Click(object sender, EventArgs e)
+    {
+        da = new SqlDataAdapter("select * from  emp ", "Data Source=.\\sqlexpress;Initial Catalog=studentmanag;User ID=sa;Password=sa123");
+        ds = new DataSet();
+        cb = new SqlCommandBuilder(da);
+        da.InsertCommand = cb.GetInsertCommand();
+        da.Fill(ds);
+        DataRow dr;
+        dr = ds.Tables[0].NewRow();
+        dr[1] = txtname.Text;
+        dr[2] = txtdob.Text;
+        dr[3] = Convert.ToInt32(txtdesgid.SelectedValue);
+        dr[4] = Convert.ToInt32(txtdeptid.SelectedValue);
+        dr[5] = Convert.ToInt32(txtsal.Text);
+        dr[6] = cvup.FileName;
+        ds.Tables[0].Rows.Add(dr);
+        if (cvup.HasFile)
+        {
+            string file = System.IO.Path.GetExtension(cvup.FileName);
+            if (file.ToLower() != ".pdf")
+            {
+                Response.Write("<script>alert('File type not supported')</script>");
+            }
+            else
+            {
+                cvup.SaveAs(Server.MapPath("~/upload/" + cvup.FileName));
+                
+
+            }
+        }
+        else
+        {
+            Response.Write("<script>alert('please select file')</script>");
+        }
+        da.Update(ds);
+        ds.Dispose();
+        cb.Dispose();
+        da.Dispose();
+        loaddata();
+
+    }
+    protected void loaddata()
+    {
+        da = new SqlDataAdapter("select * from  emp ", "Data Source=.\\sqlexpress;Initial Catalog=studentmanag;User ID=sa;Password=sa123");
+        ds = new DataSet();
+        da.Fill(ds);
+        GridView1.DataSource = ds.Tables[0];
+        GridView1.DataBind();
+        da.Dispose();
+        ds.Dispose();
+    }
+    public void loaddept()
+    {
+        da = new SqlDataAdapter("select * from  dept ", "Data Source=.\\sqlexpress;Initial Catalog=studentmanag;User ID=sa;Password=sa123");
+        ds = new DataSet();
+        da.Fill(ds);
+        txtdeptid.DataSource = ds.Tables[0];
+        txtdeptid.DataTextField = "dept_name";
+        txtdeptid.DataValueField = "dept_id";
+        txtdeptid.DataBind();
+        da.Dispose();
+        ds.Dispose();
+    }
+    public void loaddesg()
+    {
+        da = new SqlDataAdapter("select * from  desg ", "Data Source=.\\sqlexpress;Initial Catalog=studentmanag;User ID=sa;Password=sa123");
+        ds = new DataSet();
+        da.Fill(ds);
+        txtdesgid.DataSource = ds.Tables[0];
+        txtdesgid.DataTextField = "desg_name";
+        txtdesgid.DataValueField = "desg_id";
+        txtdesgid.DataBind();
+        da.Dispose();
+        ds.Dispose();
+    }
+    public void loadeno()
+    {
+        da = new SqlDataAdapter("select * from  emp ", "Data Source=.\\sqlexpress;Initial Catalog=studentmanag;User ID=sa;Password=sa123");
+        ds = new DataSet();
+        da.Fill(ds);
+        eno.DataSource = ds.Tables[0];
+        eno.DataTextField = "eno";
+        eno.DataValueField = "eno";
+        eno.DataBind();
+        da.Dispose();
+        ds.Dispose();
+    }
+    protected void Button2_Click(object sender, EventArgs e)
+    {
+        da = new SqlDataAdapter("select * from  emp where eno ="+eno.SelectedValue, "Data Source=.\\sqlexpress;Initial Catalog=studentmanag;User ID=sa;Password=sa123");
+        ds = new DataSet();
+        cb = new SqlCommandBuilder(da);
+        da.InsertCommand = cb.GetInsertCommand();
+        da.Fill(ds);
+        DataRow dr;
+        dr = ds.Tables[0].Rows[0];
+      
+        dr[3] = Convert.ToInt32(txtdesgid.SelectedValue);
+        dr[4] = Convert.ToInt32(txtdeptid.SelectedValue);
+        dr[5] = Convert.ToInt32(txtsal.Text);
+        da.Update(ds);
+        ds.Dispose();
+        cb.Dispose();
+        da.Dispose();
+        loaddata();
+    }
+
+    protected void Button4_Click(object sender, EventArgs e)
+    {
+        da = new SqlDataAdapter("select * from  emp where YEAR(dob) <"+(DateTime.Now.Year-58).ToString(), "Data Source=.\\sqlexpress;Initial Catalog=studentmanag;User ID=sa;Password=sa123");
+        ds = new DataSet();
+        cb = new SqlCommandBuilder(da);
+        da.Fill(ds);
+        foreach(DataRow dr in ds.Tables[0].Rows)
+        {
+            dr.Delete();
+        }
+        da.Update(ds);
+        ds.Dispose();
+        cb.Dispose();
+        da.Dispose();
+        loaddata();
+    }
+
+    protected void Button5_Click(object sender, EventArgs e)
+    {
+
+    }
+
+    protected void Button3_Click(object sender, EventArgs e)
+    {
+        da = new SqlDataAdapter("select * from  emp where salary > "+txtsal.Text+" or desg_id ="+txtdesgid.SelectedValue, "Data Source=.\\sqlexpress;Initial Catalog=studentmanag;User ID=sa;Password=sa123");
+        ds = new DataSet();
+        da.Fill(ds);
+        foreach(DataRow dr in ds.Tables[0].Rows)
+        {
+            eno.SelectedValue = dr[0].ToString();
+            txtname.Text = dr[1].ToString();
+            txtdob.Text = dr[2].ToString();
+            txtdesgid.SelectedValue = dr[3].ToString();
+            txtdeptid.SelectedValue = dr[4].ToString();
+            txtsal.Text = dr[5].ToString();
+            
+        }
+        da.Dispose();
+        ds.Dispose();
+    }
+}

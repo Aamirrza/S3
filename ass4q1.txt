@@ -1,0 +1,379 @@
+//Iservice.cs
+
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Runtime.Serialization;
+using System.ServiceModel;
+using System.ServiceModel.Web;
+using System.Text;
+
+// NOTE: You can use the "Rename" command on the "Refactor" menu to change the interface name "IService" in both code and config file together.
+[ServiceContract]
+public interface IService
+{
+
+	[OperationContract]
+	string GetData(int value);
+
+	[OperationContract]
+	CompositeType GetDataUsingDataContract(CompositeType composite);
+
+    [OperationContract]
+    List<string> courseid_list();
+
+    [OperationContract]
+    List<string> coursename_list();
+
+    [OperationContract]
+    List<string> classid_list();
+
+    [OperationContract]
+    List<string> rollno_list();
+
+
+    [OperationContract]
+    List<string> ins_stud(string name,int classid,int courseid,string email,string mobile,DateTime dob);
+
+    [OperationContract]
+    List<stud> load_stud();
+
+    [OperationContract]
+    List<string> classname_list();
+
+    // TODO: Add your service operations here
+}
+
+// Use a data contract as illustrated in the sample below to add composite types to service operations.
+[DataContract]
+public class CompositeType
+{
+	bool boolValue = true;
+	string stringValue = "Hello ";
+
+	[DataMember]
+	public bool BoolValue
+	{
+		get { return boolValue; }
+		set { boolValue = value; }
+	}
+
+	[DataMember]
+	public string StringValue
+	{
+		get { return stringValue; }
+		set { stringValue = value; }
+	}
+}
+
+[DataContract]
+public class stud
+{
+    [DataMember]
+    public string name { get; set; }
+    [DataMember]
+    public int classid { get; set; }
+    [DataMember]
+    public int courseid { get; set; }
+    [DataMember]
+    public string email { get; set; }
+    [DataMember]
+    public string mobile { get; set; }
+    [DataMember]
+    public DateTime dob { get; set; }
+    [DataMember]
+    public string coursename { get; set; }
+    [DataMember]
+    public string classname { get; set; }
+}
+
+
+
+//Service.cs
+
+
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Runtime.Serialization;
+using System.ServiceModel;
+using System.ServiceModel.Web;
+using System.Text;
+using System.Data;
+using System.Data.SqlClient;
+
+// NOTE: You can use the "Rename" command on the "Refactor" menu to change the class name "Service" in code, svc and config file together.
+public class Service : IService
+{
+	public string GetData(int value)
+	{
+		return string.Format("You entered: {0}", value);
+	}
+
+    public List<string> courseid_list()
+    {
+        SqlConnection cn = new SqlConnection("Data Source=LAPTOP-J4L5J23A\\SQLEXPRESS;Initial Catalog=classcourse;Integrated Security=True");
+        SqlCommand cmd = new SqlCommand();
+        cmd.Connection = cn;
+        string str = "select courseid from course";
+        cmd.CommandText = str;
+        cn.Open();
+        SqlDataReader rd = cmd.ExecuteReader();
+        List<string> coursid = new List<string>();
+        string c;
+
+        while (rd.Read())
+        {
+            c = rd[0].ToString();
+            coursid.Add(c);
+        }
+        rd.Close();
+        cmd.Dispose();
+        cn.Close();
+        cn.Dispose();
+        return coursid;
+    }
+
+    public List<string> coursename_list()
+    {
+       
+
+        SqlConnection cn = new SqlConnection("Data Source=LAPTOP-J4L5J23A\\SQLEXPRESS;Initial Catalog=classcourse;Integrated Security=True");
+        SqlCommand cmd = new SqlCommand();
+        cmd.Connection = cn;
+        string str = "select * from course";
+        cmd.CommandText = str;
+        cn.Open();
+
+        SqlDataReader rd = cmd.ExecuteReader();
+        List<string> coursedisp = new List<string>();
+        string s;
+
+        while (rd.Read())
+        {
+            s = rd[0].ToString();
+            s = rd[1].ToString();
+         
+            coursedisp.Add(s);
+        }
+        rd.Close();
+        cmd.Dispose();
+        cn.Close();
+        cn.Dispose();
+        return coursedisp;
+    }
+
+    public List<string> classname_list()
+    {
+        
+
+        SqlConnection cn = new SqlConnection("Data Source=LAPTOP-J4L5J23A\\SQLEXPRESS;Initial Catalog=classcourse;Integrated Security=True");
+        SqlCommand cmd = new SqlCommand();
+        cmd.Connection = cn;
+        string str = "select * from class";
+        cmd.CommandText = str;
+        cn.Open();
+
+        SqlDataReader rd = cmd.ExecuteReader();
+        List<string> classdisp = new List<string>();
+        string s;
+
+        while (rd.Read())
+        {
+            s = rd[0].ToString();
+            s = rd[1].ToString();
+
+            classdisp.Add(s);
+        }
+        rd.Close();
+        cmd.Dispose();
+        cn.Close();
+        cn.Dispose();
+        return classdisp;
+    }
+
+    public List<string> classid_list()
+    {
+        SqlConnection cn = new SqlConnection("Data Source=LAPTOP-J4L5J23A\\SQLEXPRESS;Initial Catalog=classcourse;Integrated Security=True");
+        SqlCommand cmd = new SqlCommand();
+        cmd.Connection = cn;
+        string str = "select classid from class";
+        cmd.CommandText = str;
+        cn.Open();
+        SqlDataReader rd = cmd.ExecuteReader();
+        List<string> classid = new List<string>();
+        string c;
+
+        while (rd.Read())
+        {
+            c = rd[0].ToString();
+            classid.Add(c);
+        }
+        rd.Close();
+        cmd.Dispose();
+        cn.Close();
+        cn.Dispose();
+        return classid;
+    }
+
+    public List<string> rollno_list()
+    {
+        SqlConnection cn = new SqlConnection("Data Source=LAPTOP-J4L5J23A\\SQLEXPRESS;Initial Catalog=classcourse;Integrated Security=True");
+        SqlCommand cmd = new SqlCommand();
+        cmd.Connection = cn;
+        string str = "select rollno from studWebservice";
+        cmd.CommandText = str;
+        cn.Open();
+        SqlDataReader rd = cmd.ExecuteReader();
+        List<string> rno = new List<string>();
+        string c;
+
+        while (rd.Read())
+        {
+            c = rd[0].ToString();
+            rno.Add(c);
+        }
+        rd.Close();
+        cmd.Dispose();
+        cn.Close();
+        cn.Dispose();
+        return rno;
+    }
+
+    public List<stud> load_stud()
+    {
+        SqlConnection cn = new SqlConnection("Data Source=LAPTOP-J4L5J23A\\SQLEXPRESS;Initial Catalog=classcourse;Integrated Security=True");
+        SqlCommand cmd = new SqlCommand();
+        cmd.Connection = cn;
+        string str = "select * from  studWebservice s,class c,course c1 where s.classid=c.classid and s.courseid=c1.courseid";
+        cmd.CommandText = str;
+        cn.Open();
+
+        SqlDataReader rd = cmd.ExecuteReader();
+        List<stud> studdisp = new List<stud>();
+        stud s;
+
+        while (rd.Read())
+        {
+            s = new stud();
+            s.name = rd["name"].ToString();
+            s.classid =Convert.ToInt32(rd["classid"].ToString());
+            s.courseid = Convert.ToInt32(rd["courseid"].ToString());
+            s.email = rd["email"].ToString();
+            s.mobile = rd["mobile"].ToString();
+            s.classname = rd["classname"].ToString();
+            s.coursename = rd["coursename"].ToString();
+            s.dob = Convert.ToDateTime(rd["dob"].ToString());
+            studdisp.Add(s);
+        }
+        rd.Close();
+        cmd.Dispose();
+        cn.Close();
+        cn.Dispose();
+        return studdisp;
+    }
+
+    public List<string> ins_stud(string name, int classid, int courseid, string email, string mobile, DateTime dob)
+    {
+        SqlConnection cn = new SqlConnection("Data Source=LAPTOP-J4L5J23A\\SQLEXPRESS;Initial Catalog=classcourse;Integrated Security=True");
+        SqlCommand cmd = new SqlCommand();
+        cmd.Connection = cn;
+        string dob1 = Convert.ToDateTime(dob).ToString();
+        string str = "insert into studWebservice values('" + name + "'," + classid + "," + courseid + ",'" + email + "','" + mobile + "','" + dob1 +"')";
+        cmd.CommandText = str;
+        cn.Open();
+        cmd.ExecuteNonQuery();
+
+
+        List<string> stud = new List<string>();
+        cmd.Dispose();
+        cn.Close();
+        cn.Dispose();
+        return stud;
+    }
+
+    public CompositeType GetDataUsingDataContract(CompositeType composite)
+	{
+		if (composite == null)
+		{
+			throw new ArgumentNullException("composite");
+		}
+		if (composite.BoolValue)
+		{
+			composite.StringValue += "Suffix";
+		}
+		return composite;
+	}
+}
+
+
+//student.cs
+
+
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Web;
+using System.Web.UI;
+using System.Web.UI.WebControls;
+using ServiceReference1;
+
+public partial class stud : System.Web.UI.Page
+{
+    protected void Page_Load(object sender, EventArgs e)
+    {
+        if (!IsPostBack)
+            load_courseid();
+            load_classid();
+            load_rno();
+          load_empgrid();
+    }
+
+    private void load_empgrid()
+    {
+        ServiceReference1.ServiceClient sc = new ServiceClient();
+        GridView1.DataSource = sc.load_stud();
+        GridView1.DataBind();
+    }
+
+    private void load_rno()
+    {
+        ServiceReference1.ServiceClient sc = new ServiceClient();
+        string[] rno = sc.rollno_list();
+        DropDownList3.DataSource = rno;
+        DropDownList3.DataBind();
+    }
+
+    private void load_courseid()
+    {
+        ServiceReference1.ServiceClient sc = new ServiceClient();
+        string[] id = sc.courseid_list();
+        DropDownList2.DataSource = id;
+        DropDownList2.DataBind();
+    }
+
+    private void load_classid()
+    {
+        ServiceReference1.ServiceClient sc = new ServiceClient();
+        string[] id = sc.classid_list();
+        DropDownList1.DataSource = id;
+        DropDownList1.DataBind();
+    }
+
+    protected void btnInsert_Click(object sender, EventArgs e)
+    {
+        try
+        {
+            ServiceReference1.ServiceClient sc = new ServiceClient();
+            int courseid = Convert.ToInt32(DropDownList2.Text);
+            int classid = Convert.ToInt32(DropDownList1.Text);
+            string[] emp = sc.ins_stud(txtName.Text, classid, courseid, txtEmail.Text, txtMobile.Text, Convert.ToDateTime(txtDob.Text));
+            //Response.Write("<script> alert('Inserted')</script>");
+        }
+        catch(Exception ex)
+        {
+            Response.Write(ex.Message);
+        }
+
+    }
+}

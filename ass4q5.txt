@@ -1,0 +1,269 @@
+//controller
+
+
+
+using System;
+using System.Collections.Generic;
+using System.Data;
+using System.Data.Entity;
+using System.Linq;
+using System.Net;
+using System.Web;
+using System.Web.Mvc;
+using Ass4Q5.Models;
+
+namespace Ass4Q5.Controllers
+{
+    public class employeeServicesController : Controller
+    {
+        private empdeptEntities db = new empdeptEntities();
+
+        // GET: employeeServices
+        public ActionResult Index()
+        {
+            return View(db.employeeServices.ToList());
+        }
+
+        // GET: employeeServices/Details/5
+        public ActionResult Details(int? id)
+        {
+            if (id == null)
+            {
+                return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
+            }
+            employeeService employeeService = db.employeeServices.Find(id);
+            if (employeeService == null)
+            {
+                return HttpNotFound();
+            }
+            return View(employeeService);
+        }
+
+        // GET: employeeServices/Create
+        public ActionResult Create()
+        {
+            return View();
+        }
+
+       
+
+        // POST: employeeServices/Create
+        // To protect from overposting attacks, please enable the specific properties you want to bind to, for 
+        // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public ActionResult Create([Bind(Include = "eno,name,dob,desigid,deptid,salary,cv")] employeeService employeeService)
+        {
+            if (ModelState.IsValid)
+            {
+                db.employeeServices.Add(employeeService);
+                db.SaveChanges();
+                return RedirectToAction("Index");
+            }
+
+            return View(employeeService);
+        }
+
+        // GET: employeeServices/Edit/5
+        public ActionResult Edit(int? id)
+        {
+            if (id == null)
+            {
+                return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
+            }
+            employeeService employeeService = db.employeeServices.Find(id);
+            if (employeeService == null)
+            {
+                return HttpNotFound();
+            }
+            return View(employeeService);
+        }
+
+        // POST: employeeServices/Edit/5
+        // To protect from overposting attacks, please enable the specific properties you want to bind to, for 
+        // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public ActionResult Edit([Bind(Include = "eno,name,dob,desigid,deptid,salary,cv")] employeeService employeeService)
+        {
+            if (ModelState.IsValid)
+            {
+                db.Entry(employeeService).State = EntityState.Modified;
+                db.SaveChanges();
+                return RedirectToAction("Index");
+            }
+            return View(employeeService);
+        }
+
+        // GET: employeeServices/Delete/5
+        public ActionResult Delete(int? id)
+        {
+            if (id == null)
+            {
+                return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
+            }
+            employeeService employeeService = db.employeeServices.Find(id);
+            if (employeeService == null)
+            {
+                return HttpNotFound();
+            }
+            return View(employeeService);
+        }
+
+        //Search by salary > input
+        public ActionResult Search()
+        {
+            return View();
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public ActionResult Search(int salary)
+        {
+            List<employeeService> em = (from e in db.employeeServices
+                           where e.salary > salary
+                           select e
+                           ).ToList<employeeService>();
+            return View("Index",em);
+        }
+
+    
+
+        [HttpPost, ActionName("Delete")]
+        [ValidateAntiForgeryToken]
+        public ActionResult DeleteAge(int id)
+        {    
+            
+
+            foreach(employeeService e in db.employeeServices)
+            {
+                int today = Convert.ToInt32(DateTime.Now.Year);
+                int dob1 = Convert.ToInt32(e.dob);
+                int finalage=dob1-today;
+                if(e.eno==id && e.dob > DateTime.Now)
+                {
+                    db.employeeServices.Remove(e);
+                }
+                db.SaveChanges();
+            }
+            return RedirectToAction("Index");
+
+        }
+
+        protected override void Dispose(bool disposing)
+        {
+            if (disposing)
+            {
+                db.Dispose();
+            }
+            base.Dispose(disposing);
+        }
+    }
+}
+
+
+
+//view(search)
+
+@model Ass4Q5.Models.employeeService
+
+@{
+    ViewBag.Title = "Search";
+}
+
+<h2>Search</h2>
+
+@using (Html.BeginForm())
+{
+    @Html.AntiForgeryToken()
+    <div class="form-horizontal">
+        <h4>employeeService</h4>
+        <hr />
+        @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+        <div class="form-group">
+            @Html.LabelFor(model => model.salary, htmlAttributes: new { @class = "control-label col-md-2" })
+            <div class="col-md-10">
+                @Html.EditorFor(model => model.salary, new { htmlAttributes = new { @class = "form-control" } })
+                @Html.ValidationMessageFor(model => model.salary, "", new { @class = "text-danger" })
+            </div>
+        </div>
+
+        <div class="form-group">
+            <div class="col-md-offset-2 col-md-10">
+                <input type="submit" value="Search Salary" class="btn btn-default" />
+            </div>
+        </div>
+        </div>
+}
+
+
+//index.cs
+
+
+@model IEnumerable<Ass4Q5.Models.employeeService>
+
+@{
+    ViewBag.Title = "Index";
+}
+
+<h2>Index</h2>
+
+<p>
+    @Html.ActionLink("Create New", "Create")
+</p>
+
+<p>
+    @Html.ActionLink("Salary > input", "Search")
+</p>
+<table class="table">
+    <tr>
+        <th>
+            @Html.DisplayNameFor(model => model.name)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.dob)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.desigid)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.deptid)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.salary)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.cv)
+        </th>
+        <th></th>
+    </tr>
+
+@foreach (var item in Model) {
+    <tr>
+        <td>
+            @Html.DisplayFor(modelItem => item.name)
+        </td>
+        <td>
+            @Html.DisplayFor(modelItem => item.dob)
+        </td>
+        <td>
+            @Html.DisplayFor(modelItem => item.desigid)
+        </td>
+        <td>
+            @Html.DisplayFor(modelItem => item.deptid)
+        </td>
+        <td>
+            @Html.DisplayFor(modelItem => item.salary)
+        </td>
+        <td>
+            @Html.DisplayFor(modelItem => item.cv)
+        </td>
+        <td>
+            @Html.ActionLink("Edit", "Edit", new { id=item.eno }) |
+            @Html.ActionLink("Details", "Details", new { id=item.eno }) |
+            @Html.ActionLink("Delete", "Delete", new { id=item.eno })
+        </td>
+    </tr>
+}
+
+</table>
